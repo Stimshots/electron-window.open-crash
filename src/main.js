@@ -1,5 +1,4 @@
 const {app, BrowserWindow} = require('electron')
-const path = require('path');
 
 let mainWindow;
 
@@ -12,18 +11,20 @@ function createWindow (webContents) {
     webContents: webContents
   })
 
-  window.webContents.session.protocol.registerFileProtocol('testing', (request, callback) => {
-    callback(path.resolve(__dirname, '../index.html'));
-  });
-
-  window.loadURL('testing://index.html')
+  window.loadURL('http://github.com');
 
   window.webContents.openDevTools();
 
   window.webContents.on('new-window', (event, url, frameName, disposition, options) => {
-    event.preventDefault()
-    const win = createWindow(options.webContents);
-    event.newGuest = win;
+    try {
+      event.preventDefault()
+      const win = createWindow(options.webContents);
+      win.loadURL(url);
+      event.newGuest = win;
+    }
+    catch (e) {
+      console.log(`Error when creating new window: ${e.error}`);
+    }
   });
 
   return window;
@@ -42,6 +43,4 @@ app.on('window-all-closed', () => {
 });
 
 // Use the debug console to open child windows from the next child window
-// window.open('https://youtube.com');
-// window.open('https://github.com');
-// window.open('testing://index.html');
+// window.open('http://github.com');
